@@ -1,5 +1,6 @@
 # LSDSS2023-group1
-Group 1's project for the 2023 La Serena School of Data Science
+- Group 1's project for the 2023 La Serena School of Data Science
+- Authors: Luis Herrera, Chia-Lin Ko, Fabiola Norambuena, Juan Ramirez
 
 ## Setup Instructions
 
