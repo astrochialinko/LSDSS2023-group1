@@ -12,7 +12,7 @@ This project will explore the use of deep learning techniques in digital patholo
     - 113 for Chronic Lymphocytic Leukemia (CLL)
     - 139 for Follicular Lymphoma (FL)
     - 122 for Mantle Cell Lymphoma (MCL)
-- Data (6.3M) [(download here)](http://andrewjanowczyk.com/wp-static/lymphoma.tar.gz)
+- Data (1.4G) [(download here)](http://andrewjanowczyk.com/wp-static/lymphoma.tar.gz)
 - Tutorial [(download here)](http://andrewjanowczyk.com/use-case-7-lymphoma-sub-type-classification/)
 - Reference: [Online supplemental material](http://www.andrewjanowczyk.com/deep-learning/) of the paper [“Deep learning for digital pathology image analysis: A comprehensive tutorial with selected use cases”](https://www.sciencedirect.com/science/article/pii/S2153353922005478?via%3Dihub).
 
