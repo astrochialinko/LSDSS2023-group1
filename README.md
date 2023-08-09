@@ -6,19 +6,15 @@ This project will explore the use of deep learning techniques in digital patholo
 
 ## Dataset
 
-- Online supplemental material of [“Deep learning for digital pathology image analysis: A comprehensive tutorial with selected use cases”](https://www.sciencedirect.com/science/article/pii/S2153353922005478?via%3Dihub).
-- [Download here](http://www.andrewjanowczyk.com/deep-learning/)
-    | Use Case                                 | Data        |
-    | ---------------------------------------- | ----------- |
-    | Nuclei Segmentation                      | Data (1.5G) |
-    | Epithelium Segmentation                  | Data (336M) |
-    | Tubule Segmentation                      | Data (90M)  |
-    | Lymphocyte Detection                     | Data (6.3M) |
-    | Mitosis Detection                        | Data (3.3G) |
-    | Invasive Ductal Carcinoma Identification | Data (1.6G) |
-    | Lymphoma Sub-type Classification         | Data (1.4G) |
-
-
+### Lymphoma Dataset 
+- The dataset consists of 374 images of size 1388 x 1040
+- These are further broken down into three sub-types of lymphoma:
+    - 113 for Chronic Lymphocytic Leukemia (CLL)
+    - 139 for Follicular Lymphoma (FL)
+    - 122 for Mantle Cell Lymphoma (MCL)
+- Data (6.3M) [(download here)](http://andrewjanowczyk.com/wp-static/lymphoma.tar.gz)
+- Tutorial [(download here)](http://andrewjanowczyk.com/use-case-7-lymphoma-sub-type-classification/)
+- Reference: [Online supplemental material](http://www.andrewjanowczyk.com/deep-learning/) of the paper [“Deep learning for digital pathology image analysis: A comprehensive tutorial with selected use cases”](https://www.sciencedirect.com/science/article/pii/S2153353922005478?via%3Dihub).
 
 
 ## Setup Instructions
@@ -31,5 +27,9 @@ This project will explore the use of deep learning techniques in digital patholo
     ```
 
 ## References
-- [[Paper]](https://www.sciencedirect.com/science/article/pii/S2153353922005478?via%3Dihub) Deep learning for digital pathology image analysis: A comprehensive tutorial with selected use cases 
+- [[Paper]](https://www.sciencedirect.com/science/article/pii/S2153353922005478?via%3Dihub) Deep learning for digital pathology image analysis: A comprehensive tutorial with selected use cases
+- [[Slide]](https://drive.google.com/file/d/1b6PNF5QdTOtBL3q_vjM5L5P9irI8ujCI/view) Project title: Digital Pathology
+
+## Acknowledgements
+We would like to acknowledge the support from Dr. Maurio Cerda for the guidance and support throughout the LSDSS.
 
