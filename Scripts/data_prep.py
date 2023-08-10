@@ -6,13 +6,19 @@ import glob
 import pickle
 import os
 
-PATH_DATA_DIR = '../Data/'               # path for the data directory
-PATH_PICKLE = '../Data/'  # path for the pickle file
-
+PATH_DATA_DIR = '../Data/'  # path for the data directory
+PATH_PICKLE = '../Data/'    # path for the pickle file
+IMSIZE_SPLIT = 64           # the size of the split image
 
 def read_tif(save_pickle=True):
     """
     Read the tif files and save them as the pickle files (dict)
+
+    parameters:
+        save_pickle: save the pickle files if True (bool)
+
+    outputs:
+        None
     """
 
     # path for the filenames
@@ -30,6 +36,7 @@ def read_tif(save_pickle=True):
 
     for i, filepath in enumerate(filepaths):
         
+        # get the filename, label, and feature
         filename = filepath.split('/')[-1].split('.')[0] # e.g., sj-03-2810_001
         label    = filepath.split('/')[-2]               # e.g., CLL
         feature  = filepath.split('/')[-1].split('_')[0] # e.g., sj-03-2810
@@ -43,6 +50,7 @@ def read_tif(save_pickle=True):
         imarray = np.array(im)
         images[i] = imarray
 
+    # save to the dictory
     lymphoma_dict = {'images': images,
                      'labels': np.array(labels),
                      'filenames': np.array(filenames),
@@ -57,6 +65,15 @@ def read_tif(save_pickle=True):
     return lymphoma_dict
 
 def trim_and_split_data(save_pickle=True):
+    """
+    Trim and split the images and save them as the pickle files (numpy array)
+
+    parameters:
+        save_pickle: save the pickle files if True (bool)
+
+    outputs:
+        None
+    """
 
     # Use loads to load the variable
     with open(PATH_PICKLE+'lymphoma.pickle', 'rb') as file:
@@ -69,8 +86,8 @@ def trim_and_split_data(save_pickle=True):
     print(f'Original image shape:{ images.shape}')
 
     # trim the image
-    imsize_trim  = 1024
-    im_trim_startpx = 10
+    imsize_trim  = 1024   # the size of the trimmed image
+    im_trim_startpx = 10  # the start pixel to trim the image
     image_trim = images[:, 
                         im_trim_startpx:im_trim_startpx+imsize_trim, 
                         im_trim_startpx:im_trim_startpx+imsize_trim, 
@@ -78,11 +95,10 @@ def trim_and_split_data(save_pickle=True):
     print(f'Trim the image to the shape of: {image_trim.shape}')
 
     # Split the image to many subimages
-    imsize_split = 64
-    image_split = np.array([image_trim[i][x:x+imsize_split,y:y+imsize_split] 
+    image_split = np.array([image_trim[i][x:x+IMSIZE_SPLIT, y:y+IMSIZE_SPLIT] 
                             for i in range(num_images) 
-                            for x in range(0,imsize_trim,imsize_split) 
-                            for y in range(0,imsize_trim,imsize_split)])
+                            for x in range(0, imsize_trim, IMSIZE_SPLIT) 
+                            for y in range(0, imsize_trim, IMSIZE_SPLIT)])
     print(f'Split the image to the shape of: {image_split.shape}')
 
 
@@ -91,11 +107,12 @@ def trim_and_split_data(save_pickle=True):
     filenames = lymphoma_data['filenames']
     features  = lymphoma_data['features']
 
-    num_subimg_in_orgimg = (imsize_trim/imsize_split)**2  # the number of the split subimages in the original trim image
+    # the number of the split subimages in the original trim image
+    num_subimg_in_orgimg = (imsize_trim/imsize_split)**2 
+
     labels_split = np.repeat(labels, num_subimg_in_orgimg)
     filenames_split = np.repeat(filenames, num_subimg_in_orgimg)
     features_split = np.repeat(features, num_subimg_in_orgimg)
-
 
     if save_pickle:
         # save the numpy array as the pickel files
@@ -114,12 +131,11 @@ def trim_and_split_data(save_pickle=True):
         with open(PATH_PICKLE+'X_feature.pickle', 'wb') as file:
             pickle.dump(features_split, file)
             print(f'save the X_feature.pickle to {PATH_PICKLE}X_feature.pickle')
-
         
 
 def main():
-    # read_tif(save_pickle=True)    # 12.96 GB
-    trim_and_split_data(save_pickle=True)
+    read_tif(save_pickle=True)             # 12.9 GB
+    trim_and_split_data(save_pickle=True)  # 9.5 GB
 
 
 main()
