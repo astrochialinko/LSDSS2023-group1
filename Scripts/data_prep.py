@@ -1,0 +1,125 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from PIL import Image
+import glob
+import pickle
+import os
+
+PATH_DATA_DIR = '../Data/'               # path for the data directory
+PATH_PICKLE = '../Data/'  # path for the pickle file
+
+
+def read_tif(save_pickle=True):
+    """
+    Read the tif files and save them as the pickle files (dict)
+    """
+
+    # path for the filenames
+    dir_path = PATH_DATA_DIR + '**/*.tif'
+    filepaths = glob.glob(dir_path, recursive=True) # list
+    filepaths.sort()
+
+    filenames = []
+    labels = []
+    features = []
+
+    num_images = len(filepaths)
+    num_row, num_col, num_channel = np.array(Image.open(filepaths[0])).shape
+    images = np.zeros((num_images, num_row, num_col, num_channel))
+
+    for i, filepath in enumerate(filepaths):
+        
+        filename = filepath.split('/')[-1].split('.')[0] # e.g., sj-03-2810_001
+        label    = filepath.split('/')[-2]               # e.g., CLL
+        feature  = filepath.split('/')[-1].split('_')[0] # e.g., sj-03-2810
+        
+        filenames.append(filename)
+        labels.append(label)
+        features.append(feature)
+        
+        # read the tif file
+        im = Image.open(filepath)
+        imarray = np.array(im)
+        images[i] = imarray
+
+    lymphoma_dict = {'images': images,
+                     'labels': np.array(labels),
+                     'filenames': np.array(filenames),
+                     'features': np.array(features)
+                    }
+
+    if save_pickle:
+        # save the dictory as the pickel files
+        with open(PATH_PICKLE+'lymphoma.pickle', 'wb') as file:
+            pickle.dump(lymphoma_dict, file)
+
+    return lymphoma_dict
+
+def trim_and_split_data(save_pickle=True):
+
+    # Use loads to load the variable
+    with open(PATH_PICKLE+'lymphoma.pickle', 'rb') as file:
+        lymphoma_data = pickle.load(file)
+    print(f'Read the pickel file that with the keys: {list(lymphoma_data.keys())}')
+
+    # get the images
+    images = lymphoma_data['images']
+    num_images, num_rows, num_cols, num_channels = images.shape
+    print(f'Original image shape:{ images.shape}')
+
+    # trim the image
+    imsize_trim  = 1024
+    im_trim_startpx = 10
+    image_trim = images[:, 
+                        im_trim_startpx:im_trim_startpx+imsize_trim, 
+                        im_trim_startpx:im_trim_startpx+imsize_trim, 
+                        :]
+    print(f'Trim the image to the shape of: {image_trim.shape}')
+
+    # Split the image to many subimages
+    imsize_split = 64
+    image_split = np.array([image_trim[i][x:x+imsize_split,y:y+imsize_split] 
+                            for i in range(num_images) 
+                            for x in range(0,imsize_trim,imsize_split) 
+                            for y in range(0,imsize_trim,imsize_split)])
+    print(f'Split the image to the shape of: {image_split.shape}')
+
+
+    # match the lables, filenames, features to the split images
+    labels    = lymphoma_data['labels']
+    filenames = lymphoma_data['filenames']
+    features  = lymphoma_data['features']
+
+    num_subimg_in_orgimg = (imsize_trim/imsize_split)**2  # the number of the split subimages in the original trim image
+    labels_split = np.repeat(labels, num_subimg_in_orgimg)
+    filenames_split = np.repeat(filenames, num_subimg_in_orgimg)
+    features_split = np.repeat(features, num_subimg_in_orgimg)
+
+
+    if save_pickle:
+        # save the numpy array as the pickel files
+        with open(PATH_PICKLE+'X_data.pickle', 'wb') as file:
+            pickle.dump(image_split, file)
+            print(f'save the X_data.pickle to {PATH_PICKLE}X_data.pickle')
+
+        with open(PATH_PICKLE+'y_data.pickle', 'wb') as file:
+            pickle.dump(labels_split, file)
+            print(f'save the y_data.pickle to {PATH_PICKLE}y_data.pickle')
+
+        with open(PATH_PICKLE+'X_filename.pickle', 'wb') as file:
+            pickle.dump(filenames_split, file)
+            print(f'save the X_filename.pickle to {PATH_PICKLE}X_filename.pickle')
+
+        with open(PATH_PICKLE+'X_feature.pickle', 'wb') as file:
+            pickle.dump(features_split, file)
+            print(f'save the X_feature.pickle to {PATH_PICKLE}X_feature.pickle')
+
+        
+
+def main():
+    # read_tif(save_pickle=True)    # 12.96 GB
+    trim_and_split_data(save_pickle=True)
+
+
+main()
