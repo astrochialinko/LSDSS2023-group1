@@ -59,7 +59,7 @@ def read_tif(save_pickle=True):
 
     if save_pickle:
         # save the dictory as the pickel files
-        with open(PATH_PICKLE+'lymphoma.pickle', 'wb') as file:
+        with open(PATH_DATA_DIR+'lymphoma.pickle', 'wb') as file:
             pickle.dump(lymphoma_dict, file)
 
     return lymphoma_dict
@@ -76,7 +76,7 @@ def trim_and_split_data(save_pickle=True, data_path = PATH_DATA_DIR):
     """
 
     # Use loads to load the variable
-    with open(PATH_PICKLE+'lymphoma.pickle', 'rb') as file:
+    with open(PATH_DATA_DIR+'lymphoma.pickle', 'rb') as file:
         lymphoma_data = pickle.load(file)
     print(f'Read the pickel file that with the keys: {list(lymphoma_data.keys())}')
 
@@ -150,8 +150,8 @@ def make_train_test(imfile, labelfile, data_path=PATH_DATA_DIR):
         print(f'save the y_test.npy to {data_path}y_test.npy')
 
 def main():
-    # read_tif(save_pickle=True)             # 12.9 GB
-    # trim_and_split_data(save_npy=True)     # 9.5 GB
+    read_tif(save_pickle=True)             # 12.9 GB
+    trim_and_split_data(save_npy=True)     # 9.5 GB
     make_train_test(PATH_DATA_DIR+'X_data.npy', PATH_DATA_DIR+'y_data.npy')
 
 
