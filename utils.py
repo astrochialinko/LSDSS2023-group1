@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
+from torchvision import transforms
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -23,15 +24,17 @@ class MyDataset(Dataset):
     def __getitem__(self, index):
         # Get image
         img = self.images[index,:,:,:] 
+        transf = transforms.Resize((227, 227))
+        img = transf(torch.from_numpy(img)).detach().numpy()
         if self.norm:  # normalize 
             img = (img - np.mean(img))/np.std(img) # normalize to std normal dist
         image = np.array(img, dtype=np.float32)
         # Get labels
         label = self.labels[index]
-        mask = np.zeros((3, 1, 1), dtype=np.float32) # One-hot encode label 
-        if label == '': mask[0,0] = 1
-        elif label == '': mask[1,0] = 1
-        elif label == '': mask[2,0] = 1
+        mask = np.zeros((3), dtype=np.float32) # One-hot encode label 
+        if label == '': mask[0] = 1
+        elif label == '': mask[1] = 1
+        elif label == '': mask[2] = 1
         return image, mask
     
 def check_inputs(train_ds, train_loader, savefig=False, name=None):
@@ -45,8 +48,7 @@ def check_inputs(train_ds, train_loader, savefig=False, name=None):
     shape = train_features.size()
     print(f'     Each batch has data of shape {train_features.size()}, e.g. {shape[0]} images, {[shape[2], shape[3]]} pixels each, {shape[1]} layers (features)')
     shape = train_labels.size()
-    print(shape)
-    print(f'     Each batch has labels of shape {train_labels.size()}, e.g. {shape[0]} images, {[shape[2], shape[3]]} pixels each, {shape[1]} layers (classes)')
+    print(f'     Each batch has labels of shape {train_labels.size()}, e.g. {shape[0]} images, {shape[1]} layers (classes)') # {[shape[2], shape[3]]} pixels each, {shape[1]} layers (classes)')
     if savefig:
         fig, axs = plt.subplots(4, 1)
         axs[0].set_title('images')
@@ -100,27 +102,21 @@ class MyVGG16(nn.Module):
             TripleConv(512, 512))
         self.linear1 = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(7*7*512, 2048), # 4096
+            nn.Linear(7*7*512, 4096), # 4096
             nn.ReLU())
         self.linear2 = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(2048, 2048), # 4096
+            nn.Linear(4096, 4096), # 4096
             nn.ReLU())
         self.linear3 = nn.Sequential(
-            nn.Linear(2048, num_classes)) # 4096
+            nn.Linear(4096, num_classes)) # 4096
         
     def forward(self, X):
-        print(X.shape)
-        out = self.convs(X)
-        print(out.shape)
-        out = out.reshape(out.size(0), -1)
-        print(out.shape)
-        out = self.linear1(out)
-        print(out.shape)
-        out = self.linear2(out)
-        print(out.shape)
-        out = self.linear3(out)
-        print(out.shape)
+        out = self.convs(X) # [16, 3, 227, 227] -> [16, 512, 7, 7]
+        out = out.reshape(out.size(0), -1) # [16, 512, 7, 7] -> [16, 25088]
+        out = self.linear1(out) # [16, 25088] -> [16, 2048]
+        out = self.linear2(out) # [16, 2048] -> [16, 2048]
+        out = self.linear3(out) # [16, 2048] -> [16, 3]
         return out
     
 class ResBlock(nn.Module):
@@ -197,6 +193,7 @@ def train(train_loader, model, loss_fn, optimizer, device):
     Train one epoch
     '''
     for i, (images, labels) in enumerate(train_loader):  
+        print(f'\t   Batch {i}', end='\r')
         images = images.to(device)
         labels = labels.to(device)
         # Forward pass
@@ -229,22 +226,3 @@ def validate(loader, model, device):
 
 #### Misc ####
 
-def load_data_from_pickles(imfile, labelfile):
-    '''
-    Process the data in the pickle files into train/test/val sets
-    Save as numpy files
-    '''
-    # Get data from pickles
-    with open(imfile, 'rb') as filename:
-            images = pickle.load(filename)
-    with open(labelfile, 'rb') as filename:
-            labels = pickle.load(filename)
-    # Split into train and test
-    X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=1)
-    X_train, X_val, y_train, y_val = train_test_split(images, labels, test_size=0.2, random_state=1)
-    np.save('Data/X_train.npy', X_train)
-    np.save('Data/y_train.npy', y_train)
-    np.save('Data/X_test.npy', X_test)
-    np.save('Data/y_test.npy', y_test)
-    np.save('Data/X_val.npy', X_val)
-    np.save('Data/y_val.npy', y_val)

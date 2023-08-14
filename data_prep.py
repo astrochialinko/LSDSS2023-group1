@@ -152,11 +152,13 @@ def load_data_from_pickles(imfile, labelfile):
     Process the data in the pickle files into train/test/val sets
     Save as numpy files
     '''
+    print('Reading in split X and split y pickles')
     # Get data from pickles
     with open(imfile, 'rb') as filename:
             images = pickle.load(filename)
     with open(labelfile, 'rb') as filename:
             labels = pickle.load(filename)
+    print('Splitting into training and testing npy files')
     # Split into train and test
     X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=1)
     np.save(PATH_DATA_DIR+'X_train.npy', X_train)
@@ -166,8 +168,8 @@ def load_data_from_pickles(imfile, labelfile):
      
 
 def main():
-    read_tif(save_pickle=True)             # 12.9 GB
-    trim_and_split_data(save_pickle=True)  # 9.5 GB
+    # read_tif(save_pickle=True)             # 12.9 GB
+    # trim_and_split_data(save_pickle=True)  # 9.5 GB
     load_data_from_pickles(PATH_PICKLE+'X_data.pickle', PATH_PICKLE+'y_data.pickle')
 
 main()
