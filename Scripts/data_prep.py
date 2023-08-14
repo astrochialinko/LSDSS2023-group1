@@ -5,9 +5,9 @@ from PIL import Image
 import glob
 import pickle
 import os
+from sklearn.model_selection import train_test_split
 
 PATH_DATA_DIR = '../Data/'  # path for the data directory
-PATH_PICKLE = '../Data/'    # path for the pickle file
 IMSIZE_SPLIT = 64           # the size of the split image
 
 def read_tif(save_pickle=True):
@@ -64,7 +64,7 @@ def read_tif(save_pickle=True):
 
     return lymphoma_dict
 
-def trim_and_split_data(save_pickle=True):
+def trim_and_split_data(save_pickle=True, data_path = PATH_DATA_DIR):
     """
     Trim and split the images and save them as the pickle files (numpy array)
 
@@ -104,38 +104,55 @@ def trim_and_split_data(save_pickle=True):
 
     # match the lables, filenames, features to the split images
     labels    = lymphoma_data['labels']
-    filenames = lymphoma_data['filenames']
-    features  = lymphoma_data['features']
 
     # the number of the split subimages in the original trim image
-    num_subimg_in_orgimg = (imsize_trim/imsize_split)**2 
+    num_subimg_in_orgimg = (imsize_trim/IMSIZE_SPLIT)**2 
 
     labels_split = np.repeat(labels, num_subimg_in_orgimg)
-    filenames_split = np.repeat(filenames, num_subimg_in_orgimg)
-    features_split = np.repeat(features, num_subimg_in_orgimg)
 
     if save_pickle:
-        # save the numpy array as the pickel files
-        with open(PATH_PICKLE+'X_data.pickle', 'wb') as file:
-            pickle.dump(image_split, file)
-            print(f'save the X_data.pickle to {PATH_PICKLE}X_data.pickle')
+        # save the numpy array as the npy files
+        with open(data_path+'X_data.npy', 'wb') as file:
+            np.save(file, image_split)
+            print(f'save the X_data.npy to {data_path}X_data.npy')
 
-        with open(PATH_PICKLE+'y_data.pickle', 'wb') as file:
-            pickle.dump(labels_split, file)
-            print(f'save the y_data.pickle to {PATH_PICKLE}y_data.pickle')
+        with open(data_path+'y_data.npy', 'wb') as file:
+            np.save(file, labels_split)
+            print(f'save the y_data.npy to {data_path}y_data.npy')
 
-        with open(PATH_PICKLE+'X_filename.pickle', 'wb') as file:
-            pickle.dump(filenames_split, file)
-            print(f'save the X_filename.pickle to {PATH_PICKLE}X_filename.pickle')
+def make_train_test(imfile, labelfile, data_path=PATH_DATA_DIR):
+    """
+    Process the data in the pickle files into train/test/val sets
+    Save as numpy files
+    """
 
-        with open(PATH_PICKLE+'X_feature.pickle', 'wb') as file:
-            pickle.dump(features_split, file)
-            print(f'save the X_feature.pickle to {PATH_PICKLE}X_feature.pickle')
-        
+    # Get data from pickles
+    with open(imfile, 'rb') as filename:
+        images = np.load(filename)
+    with open(labelfile, 'rb') as filename:
+        labels = np.load(filename)
+
+    # Split into train and test
+    X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=1)
+
+    # Save the npy files
+    with open(data_path+'X_train.npy', 'wb') as file:
+        np.save(file, X_train)
+        print(f'save the X_train.npy to {data_path}X_train.npy')
+    with open(data_path+'y_train.npy', 'wb') as file:
+        np.save(file, y_train)
+        print(f'save the y_train.npy to {data_path}y_train.npy')
+    with open(data_path+'X_test.npy', 'wb') as file:
+        np.save(file, X_test)
+        print(f'save the X_test.npy to {data_path}X_test.npy')
+    with open(data_path+'y_test.npy', 'wb') as file:
+        np.save(file, y_test)
+        print(f'save the y_test.npy to {data_path}y_test.npy')
 
 def main():
-    read_tif(save_pickle=True)             # 12.9 GB
-    trim_and_split_data(save_pickle=True)  # 9.5 GB
+    # read_tif(save_pickle=True)             # 12.9 GB
+    # trim_and_split_data(save_npy=True)     # 9.5 GB
+    make_train_test(PATH_DATA_DIR+'X_data.npy', PATH_DATA_DIR+'y_data.npy')
 
 
 main()
