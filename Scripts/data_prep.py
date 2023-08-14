@@ -64,12 +64,12 @@ def read_tif(save_pickle=True):
 
     return lymphoma_dict
 
-def trim_and_split_data(save_pickle=True, data_path = PATH_DATA_DIR):
+def trim_and_split_data(save_npy=True, data_path = PATH_DATA_DIR):
     """
-    Trim and split the images and save them as the pickle files (numpy array)
+    Trim and split the images and save them as the npy files (numpy array)
 
     parameters:
-        save_pickle: save the pickle files if True (bool)
+        save_pickle: save the npy files if True (bool)
 
     outputs:
         None
@@ -110,7 +110,7 @@ def trim_and_split_data(save_pickle=True, data_path = PATH_DATA_DIR):
 
     labels_split = np.repeat(labels, num_subimg_in_orgimg)
 
-    if save_pickle:
+    if save_npy:
         # save the numpy array as the npy files
         with open(data_path+'X_data.npy', 'wb') as file:
             np.save(file, image_split)
