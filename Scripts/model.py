@@ -177,7 +177,7 @@ def plot_confusion_matrix(cm, n_classes, fig_path=PATH_OUTPUT_DIR):
 def main():
 
     # data preparation
-    X_train, y_train_word, X_test, y_test_word = load_data
+    X_train, y_train_word, X_test, y_test_word = load_data(PATH_DATA_DIR)
     plot_first_36(X_train, y_train_word)
     X_train, X_test = normailize_data(X_train, X_test)
     y_train, y_test, le = transform_label(y_train_word, y_test_word)
