@@ -119,7 +119,7 @@ def create_model(img_size, n_classes):
 
     return model
 
-def model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs=epochs)
+def model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs=epochs):
     history = model.fit(X_train, Y_train, epochs=epochs, validation_data=(X_val, Y_val))
     print('Validating model...')
     score, acc = model.evaluate(X_val, Y_val, verbose = 1)
@@ -187,7 +187,7 @@ def main():
     # model
     img_size = (64, 64, 3)
     n_classes = 3
-    epochs = 2
+    epochs = 10
     model = create_model(img_size=img_size, n_classes=n_classes)
     model.compile(loss = 'categorical_crossentropy', optimizer = 'rmsprop', metrics = ['accuracy'])
     model = model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs=epochs)
