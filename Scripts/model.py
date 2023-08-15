@@ -128,7 +128,7 @@ def model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs, dat
     model.save(data_path+'model.h5')
     return model
 
-def model_predict(model, X_test, y_test, lb):
+def model_predict(model, X_test, y_test, lb, data_path=PATH_OUTPUT_DIR):
     
     # Predict
     print('Predicting...')
@@ -139,7 +139,7 @@ def model_predict(model, X_test, y_test, lb):
 
     output_np = np.concatenate((index, Y_pred_2d), axis = 1)
     output_df = pd.DataFrame(data = output_np, columns = ['ImageId', 'Label'])
-    output_df.to_csv('out.csv', index = False)
+    output_df.to_csv(data_path+'out.csv', index = False)
 
     print(
         f"Classification report:\n"
@@ -189,7 +189,7 @@ def main():
     # model
     img_size = (64, 64, 3)
     n_classes = 3
-    epochs = 1
+    epochs = 50
     model = create_model(img_size=img_size, n_classes=n_classes)
     model.compile(loss = 'categorical_crossentropy', optimizer = 'rmsprop', metrics = ['accuracy'])
     model = model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs, PATH_OUTPUT_DIR)
