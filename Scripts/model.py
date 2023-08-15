@@ -30,6 +30,8 @@ def load_data(data_path=PATH_DATA_DIR):
     with open(data_path+'y_test.npy', 'rb') as filename:
         y_test_word= np.load(filename)
 
+    print('There are', X_train.shape[0], 'training data and', X_test.shape[0], 'testing data')
+
     return X_train, y_train_word, X_test, y_test_word
 
 def plot_first_36(X_train, y_train_word, data_path=PATH_OUTPUT_DIR):
@@ -67,7 +69,6 @@ def transform_label(y_train_word, y_test_word):
     le.fit(y_test_word)
     y_test = le.transform(y_test_word)
 
-    print('There are', X_train.shape[0], 'training data and', X_test.shape[0], 'testing data')
     print('Number of occurence for each number in training data (0 stands for 10):')
     print(np.vstack((np.unique(y_train), np.bincount(y_train))).T)
 
