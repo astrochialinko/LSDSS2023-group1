@@ -120,12 +120,13 @@ def create_model(img_size, n_classes):
 
     return model
 
-def model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs):
+def model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs, data_path=PATH_OUTPUT_DIR):
     history = model.fit(X_train, Y_train, epochs=epochs, validation_data=(X_val, Y_val))
     print('Validating model...')
     score, acc = model.evaluate(X_val, Y_val, verbose = 1)
     print('\nLoss:', score, '\nAcc:', acc)
-    model.save('model.h5')
+    model.save(data_path+'model.h5')
+    return model
 
 def model_predict(model, X_test, y_test, lb):
     
@@ -188,10 +189,10 @@ def main():
     # model
     img_size = (64, 64, 3)
     n_classes = 3
-    epochs = 10
+    epochs = 1
     model = create_model(img_size=img_size, n_classes=n_classes)
     model.compile(loss = 'categorical_crossentropy', optimizer = 'rmsprop', metrics = ['accuracy'])
-    model = model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs)
+    model = model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs, PATH_OUTPUT_DIR)
     Y_pred = model_predict(model, X_test, y_test, lb)
     
     # evaluation
