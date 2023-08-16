@@ -7,9 +7,14 @@ from sklearn import preprocessing
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix
 
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv2D, MaxPooling2D
+
+from keras import backend as K
+import tensorflow as tf
+import pickle
+
 
 import itertools
 
@@ -122,10 +127,16 @@ def create_model(img_size, n_classes):
 
 def model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs, data_path=PATH_OUTPUT_DIR):
     history = model.fit(X_train, Y_train, epochs=epochs, validation_data=(X_val, Y_val))
+    history_dict = history.history
+    with open(data_path+'history.pickle', 'wb') as file:
+        np.save(file, history_dict)
+        print(f'save the history to {data_path}history_pickle')
+    
     print('Validating model...')
     score, acc = model.evaluate(X_val, Y_val, verbose = 1)
     print('\nLoss:', score, '\nAcc:', acc)
     model.save(data_path+'model.h5')
+
     return model
 
 def model_predict(model, X_test, y_test, lb, data_path=PATH_OUTPUT_DIR):
@@ -175,6 +186,7 @@ def plot_confusion_matrix(cm, n_classes, fig_path=PATH_OUTPUT_DIR):
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.savefig(fig_path + 'cm.pdf', dpi = 300)
+    plt.close()
 
 def main():
 
@@ -189,7 +201,7 @@ def main():
     # model
     img_size = (64, 64, 3)
     n_classes = 3
-    epochs = 50
+    epochs = 100
     model = create_model(img_size=img_size, n_classes=n_classes)
     model.compile(loss = 'categorical_crossentropy', optimizer = 'rmsprop', metrics = ['accuracy'])
     model = model_fit(model, X_train, Y_train, X_val, Y_val, X_test, Y_test, epochs, PATH_OUTPUT_DIR)
@@ -198,5 +210,6 @@ def main():
     # evaluation
     cm = cal_confusion_matrix(y_test, Y_pred)
     plot_confusion_matrix(cm, n_classes)
+    
 
 main()
